@@ -9,7 +9,7 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-if ! which ncz &>/dev/null
+if ! which nc &>/dev/null
 then echo "install nc , e.g. yum install nc" ; exit
 fi
 
@@ -34,7 +34,7 @@ echo "show stat" | nc -U /var/lib/haproxy/stats | \
 
 list_disabled_backend_servers() {
 echo "show stat" | nc -U /var/lib/haproxy/stats | \
-    grep  -P ",$BACKEND_PATTERN" | awk -F, '{if ($18 != "UP") print $2 }' | sort -u
+    grep  -P ",$BACKEND_PATTERN" | awk -F, '{if ($18 == "MAINT") print $2 }' | sort -u
 }
 
 get_backend_ip() {
@@ -58,7 +58,7 @@ do
     TTFB=$( get_ttfb )
     echo "= got TTFB $TTFB"
     if perl -e ' exit  ( '$TTFB' < '$TTFB_TEST' ? 0 : 1 )  '
-    then    enable_backend_server $BACKEND 
+    then    enable_backend_server $BACKEND
     else    echo "= do nothing"
     fi
 done
@@ -74,7 +74,7 @@ do
     TTFB=$( get_ttfb )
     echo "= got TTFB $TTFB"
     if perl -e ' exit  ( '$TTFB' >  '$TTFB_TEST' ? 0 : 1 )  '
-    then    disable_backend_server $BACKEND 
+    then    disable_backend_server $BACKEND
     else    echo "= do nothing"
     fi
 done
@@ -86,5 +86,3 @@ then
    #enable random disabled server
    enable_backend_server $( list_disabled_backend_servers | sort -R | head -n1 )
 fi
-
-
