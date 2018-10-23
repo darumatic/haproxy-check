@@ -1,0 +1,3 @@
+# ignore the example haproxy configuration file
+haproxy.cfg
+
